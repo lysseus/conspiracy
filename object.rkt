@@ -108,7 +108,7 @@
          syntax/parse/define
          racket/undefined
          anaphoric
-         "kw-pass-through-lambda.rkt")
+         utils/kw-pass-through-lambda)
 
 ;; Wrap unbound identifiers in quote. 
 (define-simple-macro (#%top . x) 'x)
@@ -1028,10 +1028,15 @@
      (raise-argument-error '@
                            "object?"
                            objname))
-   (define result (local-keyword-apply object-call `(@ ,propname ,objname ,@args)))
-   (if (undefined? result)
-       when-undefined
-       result)))
+   (define result (call-with-values (thunk (local-keyword-apply object-call `(@ ,propname ,objname ,@args)))
+                                    list))
+   (cond
+     [(= (length result) 1)
+      (define ans (car result))
+      (if (undefined? ans)
+          when-undefined
+          ans)]
+     [else (apply values result)])))
 
 ;; inherited: [#:propname] [#:objname] [#:when-undefined] args ... => any
 ;; propname: symbol?
@@ -1040,29 +1045,6 @@
 ;; Retrieves the inherited property value for the specified object.
 ;; When the result is undefined returns the when-undefined value.
 ;; This call can only be used from within a property method.
-#;(define/contract (inherited #:propname (propname target-prop)
-                            #:objname (objname defining-obj)
-                            #:when-undefined (when-undefined undefined). args)
-  (->i ()
-       (#:propname [prop symbol?]
-        #:objname [obj () object?]
-        #:when-undefined [undef () any/c])
-       #:rest [rst () list?]
-       #:pre/desc (obj)
-       (cond [(undefined? kind-order)
-              "Cannot be used outside of @ context."]
-             [(unsupplied-arg? obj) #t]
-             [(false?(member obj kind-order))
-              (format "#:objname ~a not within kind-order ~a."
-                      obj kind-order)]
-             [(false? (member obj (cdr (member defining-obj kind-order))))
-              (format "#:objname ~a must occur later than previous defining-obj ~a in kind-order ~a." obj defining-obj kind-order)]
-             [else #t])
-       (result () any/c))
-  (define result (apply object-call 'inherited propname objname args))
-  (if (undefined? result)
-      when-undefined
-      result))
 (define inherited
   (kw-pass-through-lambda
    (#:propname (propname target-prop)
@@ -1080,22 +1062,6 @@
 ;; Retrieves the inherited property value for the specified object.
 ;; When the result is undefined returns the when-undefined value.
 ;; This call can only be used from within a property method.
-#;(define/contract (delegated #:propname (propname target-prop)
-                            #:when-undefiend (when-undefined undefined)
-                            objname . args)
-  (->i ([obj object?])
-       (#:propname [prop () symbol?]
-        #:when-undefiend [undef () any/c])
-       #:rest [rst () list?]
-       #:pre/desc ()
-       (if (undefined? kind-order)
-           "Cannot be used outside of @ context."
-           #t)
-       [result () any/c])
-  (define result (apply object-call 'delegated propname objname args))
-  (if (undefined? result)
-      when-undefined
-      result))
 (define delegated
   (kw-pass-through-lambda
    (#:propname (propname target-prop)
@@ -1125,7 +1091,7 @@
 ;;;=================================================================================
 
 
-;;; aux: a macro for defining "aux" variables
+;;; 0: a macro for defining "aux" variables
 ;;; where unassigned variables are assigned the value of the object's
 ;; directly-defined property, if one exists, or undefined if it does not.
 ;;;
@@ -1525,7 +1491,7 @@
   ;; template-objreqs: -> list?
   ;; If the object is a template it returns a list of missing objreqs that
   ;; must be supplied by any object deriving from this object. If the object
-  ;; is not a template, then an empty list is returned. 
+  ;; is not a template, then an empty list is returned.
   (template-objreqs () (-> list?)
                     (cond
                       [(and @ flags? self immutable no-assert)
@@ -1591,6 +1557,14 @@
                        #:break (not (string-prefix? (symbol->string kind) "mod#")))
               kind))
 
+  ;; next-non-modobj: => object?
+  ;; Returns the next object in the object's kind-order from this point that is not a modified object.
+  ;; This may be different from the derivation tree of the object. It can be useful when inherited
+  ;; wishes to leap over a kind and its modificaitons. 
+  (next-non-modobj () (-> any)
+                   (define len (length (@ modifies self)))
+                   (list-ref kind-order (add1 len)))
+
   ;; inherits-kind: => list?
   ;; Produces a list of objects inheriting from this object,
   ;; or an empty list if there are none.
@@ -1654,6 +1628,10 @@
                   (hash->list
                    (object-properties self))
                   #:construct? #f))
+
+  ;; create-clone/ε: objname => object?
+  ;; Like create-clone, except an objname can be provided and the object's
+  ;; constructor is executed. If objname is provided, it must be one not registered.
   (create-clone/ε ((objname #f)) (->* () ((or/c #f (and/c symbol? (not/c object?)))) any)
                   (define h0 (object-properties self))
                   (define h (make-hasheq (hash->list h0)))
@@ -1797,6 +1775,16 @@
     (syntax-parse stx
       [(_ body:expr ...) #'(with-output-to-string (thunk body ...))]))
 
+  (test-case "zero, single, multiple return tests"
+             (parameterize ([current-objects objects]
+                            [current-default-kind Object]
+                            [current-debug #f])
+               (% A (p0 () (-> any) (void))
+                  (p1 () (-> any) 1)
+                  (p+ () (-> any) (values 1 2 3)))
+               (check-equal? (@ p0 A) (void))
+               (check-equal? (@ p1 A) 1)
+               (check-equal? (call-with-values (thunk (@ p+ A)) list) (list 1 2 3))))
   (test-case "nested object tests"
              (parameterize ([current-objects objects]
                             [current-default-kind Object]
