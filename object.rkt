@@ -83,7 +83,7 @@
          %+
          %-
          Object?
-         debug
+         debug?
          debug!
          self
          target-prop
@@ -334,8 +334,21 @@
     [(_ (prop:id argspec:expr cspec body0:expr body:expr ...) clause ...)
      #'(cons (cons (quote prop) (contract cspec
                                           (λ argspec
-                                            (debug-trace-method)
-                                            body0 body ...)
+                                            (cond
+                                              [(false? debug?) body0 body ...]
+                                              [else
+                                               (with-handlers ([exn? (λ (e)
+                                                                    (debug-trace-method
+                                                                     'error
+                                                                     (quote prop)
+                                                                     (exn-message e))
+                                                                    (raise e))])
+                                              (debug-trace-method 'begin (quote prop))
+                                            (define result (call-with-values
+                                                            (thunk body0 body ...)
+                                                            list))
+                                              (debug-trace-method 'end (quote prop) result)
+                                              (apply values result))]))
                                           '(prop λ argspec)
                                           (current-contract-region) prop #'prop))
              (clauses clause ...))]
@@ -736,19 +749,19 @@
 ;;; (B) Message Passing
 ;;;=================================================================================
 
-;; debug: 
-(define/contract current-debug
+;; debug?: 
+(define/contract current-debug?
   (parameter/c boolean?)
   (make-parameter #f))
-(define-syntax debug
+(define-syntax debug?
   (λ (stx)
-    (syntax-parse stx [debug:id #'(current-debug)])))
+    (syntax-parse stx [debug?:id #'(current-debug?)])))
 (define-syntax debug!
   (λ (stx)
     (syntax-parse stx
-      [(_) #'(current-debug (not debug))]
+      [(_) #'(current-debug? (not debug?))]
       [(_ v:boolean)
-       #'(current-debug v)])))
+       #'(current-debug? v)])))
 
 
 ;; kind-order: The kind-order pseudo-variable provides a reference to
@@ -877,10 +890,10 @@
 ;; debug-print: fstr args =>|
 ;; fstr: string?
 ;; args: list?
-;; Prints the format string only when debug is true.
+;; Prints the format string only when debug? is true.
 (define/contract (debug-printf fstr . args)
   (->* (string?) #:rest list? any)
-  (when debug
+  (when debug?
     (apply printf fstr args)))
 
 ;; debug-show-params: =>|
@@ -970,7 +983,7 @@
                                                       undefined
                                                       (procedure-arity invokee))]
                            [current-invokee-args args])
-             (when debug (debug-show-params))
+             (when debug? (debug-show-params))
              (cond
                [(and (not (eq? propname prop-not-defined))
                      (undefined? invokee)
@@ -1072,13 +1085,12 @@
        when-undefined
        result)))
 
-(define (debug-trace-method)
-  (debug-printf "[~a:~a | target=~a self=~a | args=~a]~%"
-                target-prop
-                defining-obj
-                target-obj
-                self
-                invokee-args))
+(define (debug-trace-method sta prop (msg #f))
+  (case sta
+    [(end) (debug-printf "[method-~a ~a:~a ~a values: ~a]~%" sta prop defining-obj invokee-args msg)]      
+      [(error) (debug-printf "[method-~a ~a:~a ~a error: ~a]~%" sta prop defining-obj invokee-args msg)]
+    [else (debug-printf "[method-~a ~a:~a ~a]~%" sta prop defining-obj invokee-args)]))
+
 
 
 ;;;================================================================================
@@ -1444,7 +1456,8 @@
                   [else
                    (define ntf-val (objreq-value req))
                    (define ntf-val-proc? (objreq-proc? req))
-                   (define self-val (@ propname self))                   
+                   ;; Retrieve the object's property value.
+                   (define self-val (? propname self))                   
                    (cond
                      [(and ntf-val-proc?
                            (procedure-arity-includes? ntf-val 1)
@@ -1726,7 +1739,7 @@
 
 ;; with-objects: kinds =>|
 ;; A macro for parameterizing the current-objects,
-;; current-default-kind, and current-debug, restoring
+;; current-default-kind, and current-debug?, restoring
 ;; their values once the context of the macro has terminated.
 ;;
 ;; Filter objects by kinds and their inherited objects.
@@ -1744,12 +1757,12 @@
      #'(parameterize ([current-objects (objects-copy #:filter-not? #f
                                                      kinds ...)]
                       [current-default-kind default-kind]
-                      [current-debug debug])
+                      [current-debug? debug?])
          body ...)]))
 
 ;; without-objects: kinds =>|
 ;; A macro for parameterizing the current-objects,
-;; current-default-kind, and current-debug, restoring
+;; current-default-kind, and current-debug?, restoring
 ;; their values once the context of the macro has terminated.
 ;;
 ;; Filter-not objects by kinds and their modified and inheriting objects.
@@ -1765,7 +1778,7 @@
      #'(parameterize ([current-objects (objects-copy #:filter-not? #t
                                                      kinds ...)]
                       [current-default-kind default-kind]
-                      [current-debug debug])
+                      [current-debug? debug?])
          body ...)]))
 
 
@@ -1778,7 +1791,7 @@
   (test-case "zero, single, multiple return tests"
              (parameterize ([current-objects objects]
                             [current-default-kind Object]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A (p0 () (-> any) (void))
                   (p1 () (-> any) 1)
                   (p+ () (-> any) (values 1 2 3)))
@@ -1788,13 +1801,13 @@
   (test-case "nested object tests"
              (parameterize ([current-objects objects]
                             [current-default-kind Object]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A (p0 (%)))
                (check-equal? (@ lexical-parent (@ p0 A)) A)))
   (test-case "inerited/delegated tests"
              (parameterize ([current-objects objects]
                             [current-default-kind Object]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A (p0 () (-> any) 12))
                (% B (kinds A)
                  (p0 () (-> any) (+ (@ p1 self) (inherited)))
@@ -1807,7 +1820,7 @@
                (check-equal? (@ p0 (@ create-instance-of Object B A)) 22)))
   (test-case "inherited/delegated 2 tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% Z)
                (% A (p0 () (-> any) 12))
                (% B (kinds A)
@@ -1829,7 +1842,7 @@
                              '(C A B Z Object))))
   (test-case "? tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A
                  (p0 3)
                  (p4 () (-> symbol?) 'bar))
@@ -1841,7 +1854,7 @@
                (check-true (procedure? (? p4 B)))))
   (test-case "! tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A
                  (p0 3)
                  (p4 () (-> symbol?) 'bar))
@@ -1856,7 +1869,7 @@
                (check-equal? (@ get-kind-order B) '(B Object))))
   (test-case "@ tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A
                  (p0 3)
                  (p4 () (-> symbol?) 'bar))
@@ -1868,7 +1881,7 @@
                (check-equal? (@ p4 B) bar)))
   (test-case "inherited tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A
                  (p0 3)
                  (p4 () (-> number?) (+ 7 (@ p0 self))))
@@ -1881,7 +1894,7 @@
                (check-equal? (@ p4 B) 13)               ))
   (test-case "delegated tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A
                  (p0 3)
                  (p4 ()
@@ -1903,7 +1916,7 @@
                (check-equal? (@ p4 C) 33)               ))
   (test-case "flags tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A (flags x y z))
                (% B (kinds A))               
                (check-true (@ flags? A x))
@@ -1912,7 +1925,7 @@
                (check-true (@ flags? A w x z #:all #f))))
   (test-case "modify object tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% Z (p0 number?))
                (% A (p0 0))
                (%+ A (p1 10))
@@ -1925,7 +1938,7 @@
                              undefined)))
   (test-case "modify object w/rollback tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% Z (p0 number?))
                (% A (p0 0))
                (%+ A (p0 10))
@@ -1936,20 +1949,20 @@
                (check-equal? (@ p0 A) 100)))
   (test-case "replace object tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A (p0 0))
                (check-equal? (@ p0 A) 0)
                (%= A (p0 10))
                (check-equal? (@ p0 A) 10)))
   (test-case "remove object tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A)
                (% B (kinds A))
                (check-equal? (list->set (%- A)) (set A B))))
   (test-case "implements interfaces tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A (flags x y z)
                  (p0 number?)
                  (p1 1)
@@ -1967,7 +1980,7 @@
                                                 (p1 1))))))
   (test-case "implements μ-props tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A (flags μ-props)
                  (p0 0))
                (% B (flags μ-props)
@@ -1983,7 +1996,7 @@
                              (set p0 p1))))
   (test-case "prop-not-defined tests"
              (parameterize ([current-objects objects]
-                            [current-debug #f])
+                            [current-debug? #f])
                (% A (flags prop-not-defined))
                (% B (flags prop-not-defined)
                  (prop-not-defined args (->* () #:rest list? any)
@@ -2240,7 +2253,7 @@
     (test-case "move-to* tests"
                (parameterize ([current-objects objects]
                               [current-default-kind Nothing]
-                              [current-debug #f])
+                              [current-debug? #f])
                  (% X)
                  (% Y)
                  (% Z)
@@ -2257,7 +2270,7 @@
     (test-case "parents/siblings/children/contents tests"
                (parameterize ([current-objects objects]
                               [current-default-kind Nothing]
-                              [current-debug #f])
+                              [current-debug? #f])
                  (% A)
                  (% B (parent A))
                  (% C (parent B))
