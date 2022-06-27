@@ -55,7 +55,7 @@ The following macros parameterize on:
 @itemlist[
  @item{objects}
  @item{default-kind}
- @item{debug}]
+ @item{debug?}]
 
 Parameterizing these values means that within the context of the @tt{with-objects} and @tt{without-objects} macro bodies those values can be modified, but will be restored to their original values once control returns outside of the macros. 
 

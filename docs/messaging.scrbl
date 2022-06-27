@@ -106,14 +106,14 @@ Examples:
 
 @section{Debugging}
 
-By default the debug parameter of the library is set to #f. At times you may want to set debugging on, which will display library variables during messaging.
+By default the @tt{debug?} parameter of the library is set to #f. At times you may want to set debugging on, which will display library variables during messaging.
 
-To get and set debug, use @tt{debug} and @tt{debug!}.
+To get and set debug, use @tt{debug?} and @tt{debug!}.
 
 @bold{Syntax:}
 
 @verbatim|{
-|@bold{debug}
+|@bold{debug?}
 }|
 
 @verbatim|{
@@ -124,16 +124,16 @@ To get and set debug, use @tt{debug} and @tt{debug!}.
 @bold{Examples:}
 
 @verbatim|{
-> debug
+> debug?
 #f
 > (debug!)
-> debug
+> debug?
 #t
 > (debug! #t)
-> debug
+> debug?
 #t
 > (debug! #f)
-> debug
+> debug?
 #f
 }|
 
@@ -141,142 +141,258 @@ With debug on you'll see something like the following (the meanings of which wil
 
 @verbatim|{
            > (% A (p0 42))
+[@: ε-props-assert A ()]
+[method-begin build-kind-order:#<undefined> #<undefined>]
+[method-end build-kind-order:#<undefined> #<undefined> values: ((A Object))]
+[method-begin prop-defined:#<undefined> #<undefined>]
+[method-end prop-defined:#<undefined> #<undefined> values: (Object)]
+[Parameters:]
+	self:		A
+	target-prop:	ε-props-assert
+	target-obj:	A
+	kind-order:	(A Object)
+	defining-obj:	Object
+	invokee:	#<procedure:[...nspiracy/object.rkt:336:42>
+	invokee-arity:	0
+[method-begin ε-props-assert:Object ()]
+[@: get-objreqs A ()]
+[method-begin build-kind-order:Object ()]
+[method-end build-kind-order:Object () values: ((A Object))]
+[method-begin prop-defined:Object ()]
+[method-end prop-defined:Object () values: (Object)]
+[Parameters:]
+	self:		A
+	target-prop:	get-objreqs
+	target-obj:	A
+	kind-order:	(A Object)
+	defining-obj:	Object
+	invokee:	#<procedure:[...nspiracy/object.rkt:336:42>
+	invokee-arity:	0
+[method-begin get-objreqs:Object ()]
+[@: prop-defined A (implements prop-def-directly)]
+[method-begin build-kind-order:Object ()]
+[method-end build-kind-order:Object () values: ((A Object))]
+[method-begin prop-defined:Object ()]
+[method-end prop-defined:Object () values: (Object)]
+[Parameters:]
+	self:		A
+	target-prop:	prop-defined
+	target-obj:	A
+	kind-order:	(A Object)
+	defining-obj:	Object
+	invokee:	#<procedure:...onspiracy/object.rkt:336:42>
+	invokee-arity:	(1 2)
+[method-begin prop-defined:Object (implements prop-def-directly)]
+[method-end prop-defined:Object (implements prop-def-directly) values: (#f)]
+[@: prop-defined Object (implements prop-def-directly)]
+[method-begin build-kind-order:Object ()]
+[method-end build-kind-order:Object () values: ((Object))]
+[method-begin prop-defined:Object ()]
+[method-end prop-defined:Object () values: (Object)]
+[Parameters:]
+	self:		Object
+	target-prop:	prop-defined
+	target-obj:	Object
+	kind-order:	(Object)
+	defining-obj:	Object
+	invokee:	#<procedure:...onspiracy/object.rkt:336:42>
+	invokee-arity:	(1 2)
+[method-begin prop-defined:Object (implements prop-def-directly)]
+[method-end prop-defined:Object (implements prop-def-directly) values: (#f)]
+[method-end get-objreqs:Object () values: ((() () () () () ()))]
+[method-end ε-props-assert:Object () values: (#<void>)]
+[@: μ-props-assert! A ()]
+[method-begin build-kind-order:#<undefined> #<undefined>]
+[method-end build-kind-order:#<undefined> #<undefined> values: ((A Object))]
+[method-begin prop-defined:#<undefined> #<undefined>]
+[method-end prop-defined:#<undefined> #<undefined> values: (Object)]
+[Parameters:]
+	self:		A
+	target-prop:	μ-props-assert!
+	target-obj:	A
+	kind-order:	(A Object)
+	defining-obj:	Object
+	invokee:	#<procedure:[...nspiracy/object.rkt:336:42>
+	invokee-arity:	0
+[method-begin μ-props-assert!:Object ()]
+[@: get-objreqs A ()]
+[method-begin build-kind-order:Object ()]
+[method-end build-kind-order:Object () values: ((A Object))]
+[method-begin prop-defined:Object ()]
+[method-end prop-defined:Object () values: (Object)]
+[Parameters:]
+	self:		A
+	target-prop:	get-objreqs
+	target-obj:	A
+	kind-order:	(A Object)
+	defining-obj:	Object
+	invokee:	#<procedure:[...nspiracy/object.rkt:336:42>
+	invokee-arity:	0
+[method-begin get-objreqs:Object ()]
+[@: prop-defined A (implements prop-def-directly)]
+[method-begin build-kind-order:Object ()]
+[method-end build-kind-order:Object () values: ((A Object))]
+[method-begin prop-defined:Object ()]
+[method-end prop-defined:Object () values: (Object)]
+[Parameters:]
+	self:		A
+	target-prop:	prop-defined
+	target-obj:	A
+	kind-order:	(A Object)
+	defining-obj:	Object
+	invokee:	#<procedure:...onspiracy/object.rkt:336:42>
+	invokee-arity:	(1 2)
+[method-begin prop-defined:Object (implements prop-def-directly)]
+[method-end prop-defined:Object (implements prop-def-directly) values: (#f)]
+[@: prop-defined Object (implements prop-def-directly)]
+[method-begin build-kind-order:Object ()]
+[method-end build-kind-order:Object () values: ((Object))]
+[method-begin prop-defined:Object ()]
+[method-end prop-defined:Object () values: (Object)]
+[Parameters:]
+	self:		Object
+	target-prop:	prop-defined
+	target-obj:	Object
+	kind-order:	(Object)
+	defining-obj:	Object
+	invokee:	#<procedure:...onspiracy/object.rkt:336:42>
+	invokee-arity:	(1 2)
+[method-begin prop-defined:Object (implements prop-def-directly)]
+[method-end prop-defined:Object (implements prop-def-directly) values: (#f)]
+[method-end get-objreqs:Object () values: ((() () () () () ()))]
+[method-end μ-props-assert!:Object () values: (#<void>)]
 [@: construct A ()]
-[construct:#<undefined> | target=A self=A | args=#<undefined>]
-[construct:#<undefined> | target=A self=A | args=#<undefined>]
+[method-begin build-kind-order:#<undefined> #<undefined>]
+[method-end build-kind-order:#<undefined> #<undefined> values: ((A Object))]
+[method-begin prop-defined:#<undefined> #<undefined>]
+[method-end prop-defined:#<undefined> #<undefined> values: (#<undefined>)]
 [Parameters:]
 	self:		A
 	target-prop:	construct
 	target-obj:	A
 	kind-order:	(A Object)
-	defining-obj:	Object
-	invokee:	#<procedure:...nspiracy/object.rkt:260:42>
-	invokee-arity:	#(struct:arity-at-least 0)
-[construct:Object | target=A self=A | args=()]
-[@: flags? A (no-assert)]
-[flags?:Object | target=A self=A | args=()]
-[flags?:Object | target=A self=A | args=()]
+	defining-obj:	#<undefined>
+	invokee:	#<undefined>
+	invokee-arity:	#<undefined>
+[@: flags? A (prop-not-defined)]
+[method-begin build-kind-order:#<undefined> ()]
+[method-end build-kind-order:#<undefined> () values: ((A Object))]
+[method-begin prop-defined:#<undefined> ()]
+[method-end prop-defined:#<undefined> () values: (Object)]
 [Parameters:]
 	self:		A
 	target-prop:	flags?
 	target-obj:	A
 	kind-order:	(A Object)
 	defining-obj:	Object
-	invokee:	#<procedure:...onspiracy/object.rkt:260:42>
+	invokee:	#<procedure:...onspiracy/object.rkt:336:42>
 	invokee-arity:	#(struct:arity-at-least 0)
-[flags?:Object | target=A self=A | args=(no-assert)]
+[method-begin flags?:Object (prop-not-defined)]
 [@: prop-defined A (flags prop-def-directly)]
-[prop-defined:Object | target=A self=A | args=(no-assert)]
-[prop-defined:Object | target=A self=A | args=(no-assert)]
+[method-begin build-kind-order:Object (prop-not-defined)]
+[method-end build-kind-order:Object (prop-not-defined) values: ((A Object))]
+[method-begin prop-defined:Object (prop-not-defined)]
+[method-end prop-defined:Object (prop-not-defined) values: (Object)]
 [Parameters:]
 	self:		A
 	target-prop:	prop-defined
 	target-obj:	A
 	kind-order:	(A Object)
 	defining-obj:	Object
-	invokee:	#<procedure:...onspiracy/object.rkt:260:42>
+	invokee:	#<procedure:...onspiracy/object.rkt:336:42>
 	invokee-arity:	(1 2)
-[prop-defined:Object | target=A self=A | args=(flags prop-def-directly)]
-[@: assert! A ()]
-[assert!:Object | target=A self=A | args=()]
-[assert!:Object | target=A self=A | args=()]
+[method-begin prop-defined:Object (flags prop-def-directly)]
+[method-end prop-defined:Object (flags prop-def-directly) values: (#f)]
+[method-end flags?:Object (prop-not-defined) values: (#f)]
+[@: flags? A (no-assert)]
+[method-begin build-kind-order:#<undefined> #<undefined>]
+[method-end build-kind-order:#<undefined> #<undefined> values: ((A Object))]
+[method-begin prop-defined:#<undefined> #<undefined>]
+[method-end prop-defined:#<undefined> #<undefined> values: (Object)]
 [Parameters:]
 	self:		A
-	target-prop:	assert!
+	target-prop:	flags?
 	target-obj:	A
 	kind-order:	(A Object)
 	defining-obj:	Object
-	invokee:	#<procedure:...nspiracy/object.rkt:260:42>
-	invokee-arity:	0
-[assert!:Object | target=A self=A | args=()]
-[@: ntf-reqs A ()]
-[ntf-reqs:Object | target=A self=A | args=()]
-[ntf-reqs:Object | target=A self=A | args=()]
+	invokee:	#<procedure:...onspiracy/object.rkt:336:42>
+	invokee-arity:	#(struct:arity-at-least 0)
+[method-begin flags?:Object (no-assert)]
+[@: prop-defined A (flags prop-def-directly)]
+[method-begin build-kind-order:Object (no-assert)]
+[method-end build-kind-order:Object (no-assert) values: ((A Object))]
+[method-begin prop-defined:Object (no-assert)]
+[method-end prop-defined:Object (no-assert) values: (Object)]
 [Parameters:]
 	self:		A
-	target-prop:	ntf-reqs
+	target-prop:	prop-defined
 	target-obj:	A
 	kind-order:	(A Object)
 	defining-obj:	Object
-	invokee:	#<procedure:...nspiracy/object.rkt:260:42>
+	invokee:	#<procedure:...onspiracy/object.rkt:336:42>
+	invokee-arity:	(1 2)
+[method-begin prop-defined:Object (flags prop-def-directly)]
+[method-end prop-defined:Object (flags prop-def-directly) values: (#f)]
+[method-end flags?:Object (no-assert) values: (#f)]
+[@: ι-props-assert A ()]
+[method-begin build-kind-order:#<undefined> #<undefined>]
+[method-end build-kind-order:#<undefined> #<undefined> values: ((A Object))]
+[method-begin prop-defined:#<undefined> #<undefined>]
+[method-end prop-defined:#<undefined> #<undefined> values: (Object)]
+[Parameters:]
+	self:		A
+	target-prop:	ι-props-assert
+	target-obj:	A
+	kind-order:	(A Object)
+	defining-obj:	Object
+	invokee:	#<procedure:[...nspiracy/object.rkt:336:42>
 	invokee-arity:	0
-[ntf-reqs:Object | target=A self=A | args=()]
+[method-begin ι-props-assert:Object ()]
+[@: get-objreqs A ()]
+[method-begin build-kind-order:Object ()]
+[method-end build-kind-order:Object () values: ((A Object))]
+[method-begin prop-defined:Object ()]
+[method-end prop-defined:Object () values: (Object)]
+[Parameters:]
+	self:		A
+	target-prop:	get-objreqs
+	target-obj:	A
+	kind-order:	(A Object)
+	defining-obj:	Object
+	invokee:	#<procedure:[...nspiracy/object.rkt:336:42>
+	invokee-arity:	0
+[method-begin get-objreqs:Object ()]
 [@: prop-defined A (implements prop-def-directly)]
-[prop-defined:Object | target=A self=A | args=()]
-[prop-defined:Object | target=A self=A | args=()]
+[method-begin build-kind-order:Object ()]
+[method-end build-kind-order:Object () values: ((A Object))]
+[method-begin prop-defined:Object ()]
+[method-end prop-defined:Object () values: (Object)]
 [Parameters:]
 	self:		A
 	target-prop:	prop-defined
 	target-obj:	A
 	kind-order:	(A Object)
 	defining-obj:	Object
-	invokee:	#<procedure:...onspiracy/object.rkt:260:42>
+	invokee:	#<procedure:...onspiracy/object.rkt:336:42>
 	invokee-arity:	(1 2)
-[prop-defined:Object | target=A self=A | args=(implements prop-def-directly)]
+[method-begin prop-defined:Object (implements prop-def-directly)]
+[method-end prop-defined:Object (implements prop-def-directly) values: (#f)]
 [@: prop-defined Object (implements prop-def-directly)]
-[prop-defined:Object | target=Object self=Object | args=()]
-[prop-defined:Object | target=Object self=Object | args=()]
+[method-begin build-kind-order:Object ()]
+[method-end build-kind-order:Object () values: ((Object))]
+[method-begin prop-defined:Object ()]
+[method-end prop-defined:Object () values: (Object)]
 [Parameters:]
 	self:		Object
 	target-prop:	prop-defined
 	target-obj:	Object
 	kind-order:	(Object)
 	defining-obj:	Object
-	invokee:	#<procedure:...onspiracy/object.rkt:260:42>
+	invokee:	#<procedure:...onspiracy/object.rkt:336:42>
 	invokee-arity:	(1 2)
-[prop-defined:Object | target=Object self=Object | args=(implements prop-def-directly)]
-[@: assert A ()]
-[assert:Object | target=A self=A | args=()]
-[assert:Object | target=A self=A | args=()]
-[Parameters:]
-	self:		A
-	target-prop:	assert
-	target-obj:	A
-	kind-order:	(A Object)
-	defining-obj:	Object
-	invokee:	#<procedure:...nspiracy/object.rkt:260:42>
-	invokee-arity:	0
-[assert:Object | target=A self=A | args=()]
-[@: ntf-reqs A ()]
-[ntf-reqs:Object | target=A self=A | args=()]
-[ntf-reqs:Object | target=A self=A | args=()]
-[Parameters:]
-	self:		A
-	target-prop:	ntf-reqs
-	target-obj:	A
-	kind-order:	(A Object)
-	defining-obj:	Object
-	invokee:	#<procedure:...nspiracy/object.rkt:260:42>
-	invokee-arity:	0
-[ntf-reqs:Object | target=A self=A | args=()]
-[@: prop-defined A (implements prop-def-directly)]
-[prop-defined:Object | target=A self=A | args=()]
-[prop-defined:Object | target=A self=A | args=()]
-[Parameters:]
-	self:		A
-	target-prop:	prop-defined
-	target-obj:	A
-	kind-order:	(A Object)
-	defining-obj:	Object
-	invokee:	#<procedure:...onspiracy/object.rkt:260:42>
-	invokee-arity:	(1 2)
-[prop-defined:Object | target=A self=A | args=(implements prop-def-directly)]
-[@: prop-defined Object (implements prop-def-directly)]
-[prop-defined:Object | target=Object self=Object | args=()]
-[prop-defined:Object | target=Object self=Object | args=()]
-[Parameters:]
-	self:		Object
-	target-prop:	prop-defined
-	target-obj:	Object
-	kind-order:	(Object)
-	defining-obj:	Object
-	invokee:	#<procedure:...onspiracy/object.rkt:260:42>
-	invokee-arity:	(1 2)
-[prop-defined:Object | target=Object self=Object | args=(implements prop-def-directly)]
+[method-begin prop-defined:Object (implements prop-def-directly)]
+[method-end prop-defined:Object (implements prop-def-directly) values: (#f)]
+[method-end get-objreqs:Object () values: ((() () () () () ()))]
+[method-end ι-props-assert:Object () values: (#<void>)]
 'A
-> (? p0 A)
-[?: p0 A ()]
-[p0:#<undefined> | target=A self=A | args=#<undefined>]
-[p0:#<undefined> | target=A self=A | args=#<undefined>]
-42
  }|

@@ -404,9 +404,9 @@ A macro that binds property namess to their values for the directly-defined prop
 
 It's important to remember that the @italic{varname} is bound to the object's associated directly-defined property value, and to @tt{undefined} if it does not exist. If the property is a method the method procedure is returned, not the application of the method. 
 
-@subsection{@tt{debug}}
+@subsection{@tt{debug?}}
 
-A macro that produces diagnostic displays associated with object messaging.
+A macro indicating whether diagnostic displays associated with object messaging is turned on or off.
 
 @subsection{@tt{debug!}}
 
@@ -604,13 +604,13 @@ A function for determining whether a value is the @tt{undefined} datatype. Retur
 
 @subsection{@tt{without-objects}}
 
-A macro for parameterizing the current-objects, current-default-kind, and current-debug, restoring their values once the context of the macro has terminated.
+A macro for parameterizing the current-objects, current-default-kind, and current-debug?, restoring their values once the context of the macro has terminated.
 
 Filter objects by kinds and their inherited objects.
 
 @subsection{@tt{with-objects}}
 
-A macro for parameterizing the current-objects, current-default-kind, and current-debug, restoring their values once the context of the macro has terminated.
+A macro for parameterizing the current-objects, current-default-kind, and current-debug?, restoring their values once the context of the macro has terminated.
 
 Filter-not objects by kinds and their modified and inheriting objects.
 
