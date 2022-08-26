@@ -228,24 +228,27 @@
    (y-place y-place?))
 
 (% ι-Posns (flags immutable)
-   (posns (listof posn?)))
+   (posns (or/c (listof posn?)
+                (λ (v) (and (procedure? v)
+                            ((listof posn?) (v)))))))
 
 ;;=====================================================================================
 ;;
 ;;=====================================================================================
 
+;; Note: we use the (aux _ @) form to evaluate any μ procedure versions of these variables.
 (% μ-Ellipse (flags μ-props)   
    (area () (-> real?)
-         (aux width height)
+         (aux (width @) (height @))
          (* 1/2 pi width height))
    (eccentricity () (-> real?)
-                 (aux width height)
+                 (aux (width @) (height @))
                  (define a (/ width 2))
                  (define b (/ height 2))
                  (define c (sqrt (abs (- (sqr a) (sqr b)))))
                  (/ c a))
    (foci () (-> (listof posn?))
-         (aux width height)
+         (aux (width @) (height @))
          (define a (/ width 2))
          (define b (/ height 2))
          (define c (sqrt (abs (- (sqr a) (sqr b)))))
@@ -255,6 +258,14 @@
                    (make-posn c 0)))))
 
 (% μ-Circular (flags μ-props) (implements μ-Ellipse)
+   ;; Required for μ-Ellipse inheritance
+   (width () (-> real?)
+          (aux (radius @))
+          (* 2 radius))
+   ;; Required for μ-Elliipse inheritance
+   (height () (-> real?)
+          (aux (radius @))
+          (* 2 radius))
    (area () (-> real?)
          (aux radius)
          (* pi (sqr radius)))
@@ -451,16 +462,11 @@
 ;; Circle (radius)
 (% Circle (kinds Ellipse) (flags immutable no-assert)
    (implements ι-Circular μ-Circular ~ι-Rectangular ~μ-Ellipse)
-   (construct any (->* () #:rest list? any)
-              (aux radius)
-              (unless (@ characteristics-template? self)
-                (! width self (* 2 radius))
-                (! height self (* 2 radius)))
-              (inherited))
    (2htdp-image-render ()(-> image?)
                        (circle (@ radius self)
                                (@ outline-mode self #:when-undefined default-outline-mode)
-                               (@ pen-or-color self #:when-undefined default-pen-or-color))))
+                               (@ pen-or-color self #:when-undefined
+                                  default-pen-or-color))))
 
 (module+ test
   (with-objects ()
